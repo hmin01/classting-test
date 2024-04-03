@@ -12,7 +12,7 @@ export class SchoolController {
 
   @Post()
   @UsePipes(ValidationPipe)
-  create(@Body() createSchoolDto: CreateSchoolDto) {
+  create(@Body() createSchoolDto: CreateSchoolDto): Promise<string> {
     return this.schoolService.create(createSchoolDto);
   }
 
