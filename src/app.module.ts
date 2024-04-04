@@ -2,9 +2,9 @@ import { Module } from '@nestjs/common';
 // Config
 import { DynamodbConfigure } from './config/dynamodb.config';
 // Module
-import { SchoolModule } from './school/school.module';
 import { ConfigModule } from '@nestjs/config';
 import { DynamooseModule } from 'nestjs-dynamoose';
+import { SchoolModule } from './school/school.module';
 
 @Module({
   imports: [

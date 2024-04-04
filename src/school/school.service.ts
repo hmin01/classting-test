@@ -5,19 +5,25 @@ import { md5 } from 'js-md5';
 import { CreateSchoolDto } from './school.dto';
 // Interface
 import { School, SchoolKey } from './school.interface';
+// Utility
+import { createHash } from 'utils/crypto';
+import { responseException } from 'utils/response';
 
 @Injectable()
 export class SchoolService {
   constructor(
-    @InjectModel('School') private schoolModel: Model<School, SchoolKey>,
+    @InjectModel('classting-school')
+    private schoolModel: Model<School, SchoolKey>,
   ) {}
 
   async create(createSchoolDto: CreateSchoolDto): Promise<string> {
-    const hash = md5.create();
-    hash.update(createSchoolDto.region);
-    hash.update(createSchoolDto.name);
+    // UUID 생성
+    const uuid: string = createHash(
+      createSchoolDto.region,
+      createSchoolDto.name,
+    );
     // 데이터 저장을 위한 객체 생성
-    const info: School = { uuid: hash.hex(), ...createSchoolDto };
+    const info: School = { uuid, ...createSchoolDto };
 
     try {
       // 저장
@@ -25,17 +31,7 @@ export class SchoolService {
       // 생성된 ID 반환
       return result.uuid;
     } catch (err) {
-      if (err.name === 'ValidationError') {
-        throw new HttpException(
-          'Validation failed: ' + err.message,
-          HttpStatus.BAD_REQUEST,
-        );
-      } else {
-        throw new HttpException(
-          'Internal server error',
-          HttpStatus.INTERNAL_SERVER_ERROR,
-        );
-      }
+      responseException(err);
     }
   }
 
