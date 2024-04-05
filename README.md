@@ -1,73 +1,56 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
-</p>
+## 클래스팅(Classting) 백엔드 과제
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+아래 기능을 포함한 뉴스피드 API 구현
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+- 학교 소식을 발행할 수 있는 학교 페이지 생성 기능
+- 학교 소식에 대한 CRUD 기능
+- 학교 페이지 구독 및 구독 취소 기능
+- 구독한 학교의 소식을 모아서 볼 수 있으며, 최신 순으로 노출
+- 구독 취소를 하여도 기존 뉴스피드 조회 가능
 
-## Description
+### 구성
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+NestJS 프레임워크를 기반으로 API를 구현하였고, Swagger를 활용하여 각 API의 기능을 문서화하였습니다.
 
-## Installation
+- 서버 구동 후, localhost:3000/help로 접속하여 Swagger를 확인할 수 있습니다.
 
-```bash
-$ npm install
+데이터베이스는 AWS DynamoDB 기반으로 School, News, Subscription 테이블로 구성하였습니다.
+
+- School 테이블은 학교 페이지 생성 과정에서 데이터를 저장하며, 지역(region)과 학교명(name)가 저장됩니다. 두 개의 데이터를 이용하여 해시 값을 생성하고 해당 값은 학교의 ID로써 파티션 키(Partition key)로 사용되고 저장됩니다.
+- News 테이블은 학교 소식이 저장되며, 파티션 키(Partition key)는 학교명, 정렬 키(Sort key)는 타임스탬프 형태에 소식 생성 시간입니다. 이외에 저장되는 값은 소식 내용, 수정 시간(Timestamp)가 있습니다.
+- Subscription 테이블은 학생(= 사용자)가 학교 소식을 수신하기 위한 학교를 구독하기 위한 데이터가 저장됩니다. 파티션 키(Partition key)는 사용자 ID, 정렬 키(Sort key)는 학교 ID입니다. 그 외에 구독 시작 시간과 구독 취소 시간이 타임스탬프(Timestamp) 형태로 저장됩니다.
+
+### 설정
+
+환경 변수
+
+1. AWS DynamoDB를 사용하기 위한 AWS Configure 정보
+
+```
+AWS_ACCESS_KEY_ID=<aws_access_key_id>
+AWS_SECRET_ACCESS_KEY=<aws_secret_access_key>
+AWS_REGION=<region>
 ```
 
-## Running the app
+2. JWT 토큰 검증을 위한 시크릿 키로써 해당 프로젝트에서는 "classting"이라고 임시로 사용하였습니다.
 
-```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+```
+JWT_SECRET='classting'
 ```
 
-## Test
+### 기타 정보
 
-```bash
-# unit tests
-$ npm run test
+- 사용자 ID는 임의로 지정하였으며, 해당 정보를 포함한 민감하지 않은 데이터로 JWT 토큰을 임의로 생성하여 사용하였습니다.
 
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+```
+eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwidXNlcl9pZCI6InRlc3QwMDEiLCJpYXQiOjE1MTYyMzkwMjJ9._ry6b2GfvBn7yjUGEYgZAqd_eksSLyMn32wO1ZGMR2A
 ```
 
-## Support
+- API 요청에 있어서 Header의 Authorization 속성에 추가하여 해당 사용자를 파악하는 AccessToken으로 사용하고자 하는 의도였습니다.
+- 대량의 데이터에서 효율적인 쿼리가 가능하도록 DynamoDB 테이블에 파티션 키와 정렬 키를 설정하였습니다.
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+### 실행 및 테스트
 
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](LICENSE).
+- 개발 모드: npm run start:dev
+- 프로덕트 모드 (빌드 및 실행): npm run build & npm run start:prod
+- 테스트: npm test
