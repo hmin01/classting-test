@@ -7,12 +7,12 @@ import {
 } from '@nestjs/common';
 // DTO
 import { CreateSchoolDto } from './school.dto';
-import { SubscribeDto } from '../subscribe/subscribe.dto';
+import { SubscribeDto } from '../subscription/subscription.dto';
 // HTTP Method
 import { Patch, Post, Put } from '@nestjs/common';
 // Service
 import { SchoolService } from './school.service';
-import { SubscribeService } from 'src/subscribe/subscribe.service';
+import { SubscriptionService } from '../subscription/subscription.service';
 // Swagger
 import {
   ApiBadRequestResponse,
@@ -33,7 +33,7 @@ import {
 export class SchoolController {
   constructor(
     private readonly schoolService: SchoolService,
-    private readonly subscribeService: SubscribeService,
+    private readonly subscriptionService: SubscriptionService,
   ) {}
 
   @Post()
@@ -47,9 +47,9 @@ export class SchoolController {
     return this.schoolService.create(createSchoolDto);
   }
 
-  @Put('/subscribe')
+  @Put('/subscription')
   @UsePipes(ValidationPipe)
-  @ApiBearerAuth('accssToken')
+  @ApiBearerAuth()
   @ApiOperation({
     summary: '학교 페이지 구독',
     description: '학교 페이지를 구독합니다.',
@@ -60,12 +60,12 @@ export class SchoolController {
     @Body() subscribeDto: SubscribeDto,
     @Req() req: any,
   ): Promise<Date> {
-    return this.subscribeService.subscribe(req.user, subscribeDto.school_id);
+    return this.subscriptionService.subscribe(req.user, subscribeDto.school_id);
   }
 
-  @Patch('/unsubscribe')
+  @Patch('/unsubscription')
   @UsePipes(ValidationPipe)
-  @ApiBearerAuth('accssToken')
+  @ApiBearerAuth()
   @ApiOperation({
     summary: '학교 페이지 구독 취소',
     description: '구독 중인 학교 페이지를 취소합니다.',
@@ -77,6 +77,9 @@ export class SchoolController {
     @Body() subscribeDto: SubscribeDto,
     @Req() req: any,
   ): Promise<Date> {
-    return this.subscribeService.unsubscribe(req.user, subscribeDto.school_id);
+    return this.subscriptionService.unsubscribe(
+      req.user,
+      subscribeDto.school_id,
+    );
   }
 }

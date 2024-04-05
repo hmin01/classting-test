@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { SubscribeController } from './subscribe.controller';
+import { SubscribeController } from './subscription.controller';
 
 describe('SubscribeController', () => {
   let controller: SubscribeController;

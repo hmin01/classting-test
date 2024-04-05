@@ -1,13 +1,6 @@
-import { Schema } from 'dynamoose';
-
-export interface SchoolKey {
-  uuid: string;
-}
-
-export interface School extends SchoolKey {
-  region: string;
-  name: string;
-}
+import { Schema, model } from 'dynamoose';
+// Interface
+import type { School } from './school.interface';
 
 export const SchoolSchema = new Schema({
   uuid: {
@@ -24,3 +17,7 @@ export const SchoolSchema = new Schema({
     required: true,
   },
 });
+
+const SchoolModel = model<School>('classting-school', SchoolSchema);
+
+export default SchoolModel;

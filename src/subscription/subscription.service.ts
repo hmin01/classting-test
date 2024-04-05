@@ -1,38 +1,33 @@
 import { Injectable } from '@nestjs/common';
-import { InjectModel, Model } from 'nestjs-dynamoose';
-// Interface
-import { Subscribe, SubscribeKey } from './subscribe.schema';
+// Model
+import SubscriptionModel from './subscription.model';
 // Utility
 import {
   responseBadRequest,
   responseException,
   responseNotFound,
-} from 'utils/response';
+} from '../utils/response';
+// Type
+import type { Subscription } from './subscription.interface';
 
 @Injectable()
-export class SubscribeService {
-  constructor(
-    @InjectModel('classting-subscribe')
-    private subscribeModel: Model<Subscribe, SubscribeKey>,
-  ) {}
-
+export class SubscriptionService {
   /**
    * [Method] 구독 중인 학교 목록 조회 메서드
    * @param user 사용자 ID
    * @returns 조건에 부합하는 구독 데이터
    */
-  async getList(user: string): Promise<Subscribe[]> {
+  async getList(user: string): Promise<Subscription[]> {
     try {
       // 데이터 조회
-      const result = await this.subscribeModel
-        .query('user')
+      const result = await SubscriptionModel.query('user')
         .eq(user)
         .where('unsubscribedAt')
         .eq(0)
         .attributes(['school', 'subscribedAt'])
         .exec();
       // 데이터 가공 및 반환
-      return result.map((elem: Subscribe): any => ({
+      return result.map((elem: Subscription): any => ({
         school: elem.school,
         subscribedAt: new Date(elem.subscribedAt),
       }));
@@ -47,10 +42,10 @@ export class SubscribeService {
    * @param school 학교 ID
    * @returns 조건에 부합하는 구독 데이터
    */
-  async findOne(user: string, school: string): Promise<Subscribe> {
+  async findOne(user: string, school: string): Promise<Subscription> {
     try {
       // 구독 존재 여부 확인
-      const subscribe = await this.subscribeModel.get(
+      const subscribe = await SubscriptionModel.get(
         this.createKey(user, school),
       );
       // 예외 처리
@@ -69,10 +64,9 @@ export class SubscribeService {
    * @param user 사용자 ID
    * @returns 조건에 부합하는 구독 데이터
    */
-  async findAll(user: string): Promise<Subscribe[]> {
+  async findAll(user: string): Promise<Subscription[]> {
     try {
-      return await this.subscribeModel
-        .query('user')
+      return await SubscriptionModel.query('user')
         .eq(user)
         .attributes(['school', 'subscribedAt', 'unsubscribedAt'])
         .exec();
@@ -96,7 +90,7 @@ export class SubscribeService {
       };
 
       // 구독 존재 여부 확인
-      const subscribe = await this.subscribeModel.get(
+      const subscribe = await SubscriptionModel.get(
         this.createKey(user, school),
       );
       // 예외 처리
@@ -105,7 +99,7 @@ export class SubscribeService {
       }
 
       // 기존 데이터가 존재하면 갱신, 없을 경우 생성하기 위해 update() 메서드 사용
-      await this.subscribeModel.update(this.createKey(user, school), updated);
+      await SubscriptionModel.update(this.createKey(user, school), updated);
       // 구독 시간 반환
       return new Date(updated.subscribedAt);
     } catch (err) {
@@ -127,7 +121,7 @@ export class SubscribeService {
       };
 
       // 구독 존재 여부 확인
-      const subscribe = await this.subscribeModel.get(
+      const subscribe = await SubscriptionModel.get(
         this.createKey(user, school),
       );
       // 예외 처리
@@ -138,7 +132,7 @@ export class SubscribeService {
       }
 
       // 기존 구독이 존재할 경우, 취소 처리
-      await this.subscribeModel.update(this.createKey(user, school), updated);
+      await SubscriptionModel.update(this.createKey(user, school), updated);
       // 구독 취소 시간 반환
       return new Date(updated.unsubscribedAt);
       return;
@@ -153,7 +147,7 @@ export class SubscribeService {
    * @param school 학교 ID
    * @returns 데이터 스키마 키
    */
-  private createKey(user: string, school: string): SubscribeKey {
+  private createKey(user: string, school: string) {
     return { user, school };
   }
 }

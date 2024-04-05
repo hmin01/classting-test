@@ -10,7 +10,7 @@ import { AuthMiddleware } from './middleware/auth.middleware';
 import { ConfigModule } from '@nestjs/config';
 import { DynamooseModule } from 'nestjs-dynamoose';
 import { SchoolModule } from './school/school.module';
-import { SubscribeModule } from './subscribe/subscribe.module';
+import { SubscriptionModule } from './subscription/subscription.module';
 
 @Module({
   imports: [
@@ -22,7 +22,7 @@ import { SubscribeModule } from './subscribe/subscribe.module';
       useClass: JwtConfigService,
     }),
     SchoolModule,
-    SubscribeModule,
+    SubscriptionModule,
   ],
   providers: [JwtService],
 })
@@ -31,6 +31,10 @@ export class AppModule implements NestModule {
     // /subscribe 경로에 대해 AuthMiddleware 적용
     consumer
       .apply(AuthMiddleware)
-      .forRoutes('/school/subscribe', '/school/unsubscribe', '/subscribe/*');
+      .forRoutes(
+        '/school/subscription',
+        '/school/unsubscription',
+        '/subscription/*',
+      );
   }
 }

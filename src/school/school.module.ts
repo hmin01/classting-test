@@ -2,30 +2,22 @@ import { Module } from '@nestjs/common';
 // Controller
 import { SchoolController } from './school.controller';
 // Module
-import { DynamooseModule } from 'nestjs-dynamoose';
 import { NewsModule } from './news/news.module';
-// Schema
-import { SchoolSchema } from './school.schema';
-import { SubscribeSchema } from 'src/subscribe/subscribe.schema';
+// Model
+import SchoolModel from './school.model';
+import SubscriptionModel from '../subscription/subscription.model';
 // Service
 import { SchoolService } from './school.service';
-import { SubscribeService } from 'src/subscribe/subscribe.service';
+import { SubscriptionService } from '../subscription/subscription.service';
 
 @Module({
-  imports: [
-    DynamooseModule.forFeature([
-      {
-        name: 'classting-school',
-        schema: SchoolSchema,
-      },
-      {
-        name: 'classting-subscribe',
-        schema: SubscribeSchema,
-      },
-    ]),
-    NewsModule,
-  ],
+  imports: [NewsModule],
   controllers: [SchoolController],
-  providers: [SchoolService, SubscribeService],
+  providers: [
+    SchoolService,
+    SubscriptionService,
+    SchoolModel,
+    SubscriptionModel,
+  ],
 })
 export class SchoolModule {}

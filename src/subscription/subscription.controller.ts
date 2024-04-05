@@ -1,9 +1,7 @@
-import { Controller, Get, ParseBoolPipe, Query, Req } from '@nestjs/common';
-// Interface
-import { Subscribe } from './subscribe.schema';
+import { Controller, Get, Query, Req } from '@nestjs/common';
 // Service
-import { NewsService } from 'src/school/news/news.service';
-import { SubscribeService } from './subscribe.service';
+import { NewsService } from '../school/news/news.service';
+import { SubscriptionService } from './subscription.service';
 // Swagger
 import {
   ApiBearerAuth,
@@ -14,15 +12,18 @@ import {
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
+// Type
+import type { Subscription } from './subscription.interface';
+import type { News } from '../school/news/news.interface';
 
 @ApiBearerAuth()
 @ApiTags('Subscription API')
 @ApiUnauthorizedResponse({ description: '권한 없음' })
 @ApiInternalServerErrorResponse({ description: '서버 내부 동작 오류' })
-@Controller('subscribe')
-export class SubscribeController {
+@Controller('subscription')
+export class SubscriptionController {
   constructor(
-    private readonly subscribeService: SubscribeService,
+    private readonly subscribeService: SubscriptionService,
     private readonly newsService: NewsService,
   ) {}
 
@@ -32,7 +33,7 @@ export class SubscribeController {
     description: '구독 중인 학교 페이지 목록을 조회합니다.',
   })
   @ApiOkResponse({ description: '조회 완료' })
-  async findAll(@Req() req: any): Promise<Subscribe[]> {
+  async findAll(@Req() req: any): Promise<Subscription[]> {
     return this.subscribeService.findAll(req.user);
   }
 
@@ -44,7 +45,10 @@ export class SubscribeController {
   })
   @ApiQuery({ name: 'school_id', required: false })
   @ApiOkResponse({ description: '조회 완료' })
-  async findAllBySchool(@Query('school_id') school: string, @Req() req: any) {
+  async findAllBySchool(
+    @Query('school_id') school: string,
+    @Req() req: any,
+  ): Promise<News[]> {
     // 특정 학교에 대한 소식만 조회
     if (school) {
       // 학교 구독 기간 조회
@@ -58,10 +62,10 @@ export class SubscribeController {
         subscription.subscribedAt,
         subscription.unsubscribedAt,
       );
-    }
-    // 구독 중인 모든 학교에 대한 소식 조회
-    else {
+    } else {
+      // 구독 중인 모든 학교에 대한 소식 조회
       const subscriptions = await this.subscribeService.findAll(req.user);
+      // 모든 소식을 하나로 병합
       const result = [];
       for (let i = 0; i < subscriptions.length; i++) {
         const { school, subscribedAt, unsubscribedAt } = subscriptions[i];
@@ -73,7 +77,7 @@ export class SubscribeController {
           )),
         );
       }
-      return result.sort((a: any, b: any) => a.createdAt - b.createdAt);
+      return await this.newsService.arrangeNews(result, 'desc');
     }
   }
 }

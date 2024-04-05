@@ -11,7 +11,7 @@ import { CreateNewsDto, UpdateNewsDto } from './news.dto';
 // HTTP Method
 import { Delete, Get, Patch, Post } from '@nestjs/common';
 // Interface
-import { News } from './news.schema';
+import { News } from './news.interface';
 // Service
 import { NewsService } from './news.service';
 // Swagger
@@ -45,8 +45,8 @@ export class NewsController {
     description: '작성된 특정 소식을 조회합니다.',
   })
   @ApiNotFoundResponse({ description: '소식 정보 없음' })
-  findOneById(
-    @Query('school_id', ValidationPipe) school: string,
+  findOne(
+    @Query('school_id', new ValidationPipe({ transform: true })) school: string,
     @Query('created_at', ParseIntPipe) createdAt: number,
   ): Promise<News> {
     return this.newsService.findOne(school, createdAt);
