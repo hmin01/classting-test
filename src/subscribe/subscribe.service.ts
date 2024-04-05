@@ -16,7 +16,12 @@ export class SubscribeService {
     private subscribeModel: Model<Subscribe, SubscribeKey>,
   ) {}
 
-  async findAll(user: string): Promise<Subscribe[]> {
+  /**
+   * [Method] 구독 중인 학교 목록 조회 메서드
+   * @param user 사용자 ID
+   * @returns 조건에 부합하는 구독 데이터
+   */
+  async getList(user: string): Promise<Subscribe[]> {
     try {
       // 데이터 조회
       const result = await this.subscribeModel
@@ -36,7 +41,35 @@ export class SubscribeService {
     }
   }
 
-  async findAllBySchool(user: string) {
+  /**
+   * [Method] 특정 구독 정보 조회 메서드
+   * @param user 사용자 ID
+   * @param school 학교 ID
+   * @returns 조건에 부합하는 구독 데이터
+   */
+  async findOne(user: string, school: string): Promise<Subscribe> {
+    try {
+      // 구독 존재 여부 확인
+      const subscribe = await this.subscribeModel.get(
+        this.createKey(user, school),
+      );
+      // 예외 처리
+      if (subscribe === undefined || subscribe === null) {
+        responseNotFound();
+      }
+      // 구독 정보 반환
+      return subscribe;
+    } catch (err) {
+      responseException(err);
+    }
+  }
+
+  /**
+   * [Method] 구독 중 또는 구독했던 모든 학교 목록 조회 메서드
+   * @param user 사용자 ID
+   * @returns 조건에 부합하는 구독 데이터
+   */
+  async findAll(user: string): Promise<Subscribe[]> {
     try {
       return await this.subscribeModel
         .query('user')
@@ -48,29 +81,51 @@ export class SubscribeService {
     }
   }
 
-  async subscribe(user: string, school: string): Promise<Subscribe> {
-    const updated = {
-      subscribedAt: Date.now(),
-      unsubscribedAt: 0,
-    };
-
+  /**
+   * [Method] 학교 페이지 구독 메서드
+   * @param user 사용자 ID
+   * @param school 학교 ID
+   * @returns 구독한 시간
+   */
+  async subscribe(user: string, school: string): Promise<Date> {
     try {
-      // 기존 데이터가 존재하면 갱신, 없을 경우 생성하기 위해 update() 메서드 사용
-      return await this.subscribeModel.update(
+      // 갱신 데이터
+      const updated = {
+        subscribedAt: Date.now(),
+        unsubscribedAt: 0,
+      };
+
+      // 구독 존재 여부 확인
+      const subscribe = await this.subscribeModel.get(
         this.createKey(user, school),
-        updated,
       );
+      // 예외 처리
+      if (subscribe && subscribe.unsubscribedAt === 0) {
+        responseBadRequest('Already been subscribed.');
+      }
+
+      // 기존 데이터가 존재하면 갱신, 없을 경우 생성하기 위해 update() 메서드 사용
+      await this.subscribeModel.update(this.createKey(user, school), updated);
+      // 구독 시간 반환
+      return new Date(updated.subscribedAt);
     } catch (err) {
       responseException(err);
     }
   }
 
-  async unsubscribe(user: string, school: string): Promise<Subscribe> {
-    const updated = {
-      unsubscribedAt: Date.now(),
-    };
-
+  /**
+   * [Method] 학교 페이지 구독 취소 메서드
+   * @param user 사용자 ID
+   * @param school 학교 ID
+   * @returns 구독을 취소한 시간
+   */
+  async unsubscribe(user: string, school: string): Promise<Date> {
     try {
+      // 갱신 데이터
+      const updated = {
+        unsubscribedAt: Date.now(),
+      };
+
       // 구독 존재 여부 확인
       const subscribe = await this.subscribeModel.get(
         this.createKey(user, school),
@@ -81,17 +136,23 @@ export class SubscribeService {
       } else if (subscribe.unsubscribedAt !== 0) {
         responseBadRequest('Already been cancelled.');
       }
-      console.log('sub', subscribe);
+
       // 기존 구독이 존재할 경우, 취소 처리
-      return await this.subscribeModel.update(
-        this.createKey(user, school),
-        updated,
-      );
+      await this.subscribeModel.update(this.createKey(user, school), updated);
+      // 구독 취소 시간 반환
+      return new Date(updated.unsubscribedAt);
+      return;
     } catch (err) {
       responseException(err);
     }
   }
 
+  /**
+   * [Internal Method] 쿼리를 위한 키 생성 메서드
+   * @param user 사용자 ID
+   * @param school 학교 ID
+   * @returns 데이터 스키마 키
+   */
   private createKey(user: string, school: string): SubscribeKey {
     return { user, school };
   }

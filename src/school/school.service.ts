@@ -15,6 +15,11 @@ export class SchoolService {
     private schoolModel: Model<School, SchoolKey>,
   ) {}
 
+  /**
+   * [Method] 학교 페이지 생성 메서드
+   * @param createSchoolDto 생성을 위한 데이터 객체
+   * @returns 저장된 데이터 객체
+   */
   async create(createSchoolDto: CreateSchoolDto): Promise<string> {
     // UUID 생성
     const uuid: string = createHash(

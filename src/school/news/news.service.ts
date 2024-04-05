@@ -37,7 +37,7 @@ export class NewsService {
    * [Method] 특정 학교 소식 조회 메서드
    * @param school 학교 ID
    * @param createdAt 생성 시간 (Timestamp)
-   * @returns
+   * @returns 조건에 부합하는 소식 목록
    */
   async findOne(school: string, createdAt: number): Promise<News> {
     try {
@@ -54,7 +54,14 @@ export class NewsService {
     }
   }
 
-  async findAll(
+  /**
+   * [Method] 특정 기간 동안 특정 학교 소식 조회 메서드
+   * @param school 학교 ID
+   * @param startAt 시작 시간 (Timestamp)
+   * @param endAt 종료 시간 (Timestamp)
+   * @returns 조건에 부합하는 소식 목록
+   */
+  async findAllByRange(
     school: string,
     startAt: number,
     endAt?: number,
