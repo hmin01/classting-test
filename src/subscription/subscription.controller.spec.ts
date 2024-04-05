@@ -1,15 +1,24 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { SubscribeController } from './subscription.controller';
+import { SubscriptionController } from './subscription.controller';
+import { SubscriptionService } from './subscription.service';
+import { NewsService } from '../school/news/news.service';
 
-describe('SubscribeController', () => {
-  let controller: SubscribeController;
+describe('SubscriptionController', () => {
+  let controller: SubscriptionController;
+  // Services
+  let subscriptionService: SubscriptionService;
+  let newsService: NewsService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      controllers: [SubscribeController],
+      controllers: [SubscriptionController],
+      providers: [NewsService, SubscriptionService],
     }).compile();
 
-    controller = module.get<SubscribeController>(SubscribeController);
+    controller = module.get<SubscriptionController>(SubscriptionController);
+
+    subscriptionService = module.get<SubscriptionService>(SubscriptionService);
+    newsService = module.get<NewsService>(NewsService);
   });
 
   it('should be defined', () => {
