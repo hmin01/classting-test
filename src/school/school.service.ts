@@ -1,10 +1,9 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectModel, Model } from 'nestjs-dynamoose';
-import { md5 } from 'js-md5';
 // DTO
 import { CreateSchoolDto } from './school.dto';
 // Interface
-import { School, SchoolKey } from './school.interface';
+import { School, SchoolKey } from './school.schema';
 // Utility
 import { createHash } from 'utils/crypto';
 import { responseException } from 'utils/response';
@@ -33,9 +32,5 @@ export class SchoolService {
     } catch (err) {
       responseException(err);
     }
-  }
-
-  getAll() {
-    return [];
   }
 }

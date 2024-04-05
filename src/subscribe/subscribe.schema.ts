@@ -1,7 +1,7 @@
 import { Schema } from 'dynamoose';
 
 export interface SubscribeKey {
-  // Partition key
+  // Partition Key
   user: string;
   // Sort key
   school: string;

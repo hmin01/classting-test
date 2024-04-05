@@ -1,9 +1,7 @@
 import {
   Body,
   Controller,
-  Param,
   ParseIntPipe,
-  Patch,
   Query,
   UsePipes,
   ValidationPipe,
@@ -11,7 +9,7 @@ import {
 // DTO
 import { CreateNewsDto, UpdateNewsDto } from './news.dto';
 // HTTP Method
-import { Delete, Get, Post } from '@nestjs/common';
+import { Delete, Get, Patch, Post } from '@nestjs/common';
 // Interface
 import { News } from './news.schema';
 // Service
@@ -21,13 +19,7 @@ import { NewsService } from './news.service';
 export class NewsController {
   constructor(private newsService: NewsService) {}
 
-  @Post()
-  @UsePipes(ValidationPipe)
-  create(@Body() createNewsDto: CreateNewsDto): Promise<News> {
-    return this.newsService.create(createNewsDto);
-  }
-
-  @Delete()
+  @Delete('/item')
   remove(
     @Query('school_id', ValidationPipe) school: string,
     @Query('created_at', ValidationPipe) createdAt: number,
@@ -35,22 +27,23 @@ export class NewsController {
     return this.newsService.remove(school, createdAt);
   }
 
-  @Get()
+  @Get('/item')
   findOneById(
     @Query('school_id', ValidationPipe) school: string,
     @Query('created_at', ParseIntPipe) createdAt: number,
   ): Promise<News> {
-    return this.newsService.findOneById(school, createdAt);
+    return this.newsService.findOne(school, createdAt);
   }
 
-  @Get('/list')
-  findAll(@Query('school_id', ValidationPipe) school: string): Promise<News[]> {
-    return this.newsService.findAll(school);
-  }
-
-  @Patch()
+  @Patch('/item')
   @UsePipes(ValidationPipe)
   update(@Body() updateNewsDto: UpdateNewsDto): Promise<News> {
     return this.newsService.update(updateNewsDto);
+  }
+
+  @Post('/item')
+  @UsePipes(ValidationPipe)
+  create(@Body() createNewsDto: CreateNewsDto): Promise<News> {
+    return this.newsService.create(createNewsDto);
   }
 }

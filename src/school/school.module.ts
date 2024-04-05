@@ -3,12 +3,13 @@ import { Module } from '@nestjs/common';
 import { SchoolController } from './school.controller';
 // Module
 import { DynamooseModule } from 'nestjs-dynamoose';
-import { SubscribeModule } from './subscribe/subscribe.module';
 import { NewsModule } from './news/news.module';
 // Schema
 import { SchoolSchema } from './school.schema';
+import { SubscribeSchema } from 'src/subscribe/subscribe.schema';
 // Service
 import { SchoolService } from './school.service';
+import { SubscribeService } from 'src/subscribe/subscribe.service';
 
 @Module({
   imports: [
@@ -17,11 +18,14 @@ import { SchoolService } from './school.service';
         name: 'classting-school',
         schema: SchoolSchema,
       },
+      {
+        name: 'classting-subscribe',
+        schema: SubscribeSchema,
+      },
     ]),
     NewsModule,
-    SubscribeModule,
   ],
   controllers: [SchoolController],
-  providers: [SchoolService],
+  providers: [SchoolService, SubscribeService],
 })
 export class SchoolModule {}

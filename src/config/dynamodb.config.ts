@@ -7,7 +7,7 @@ import {
 import { ConfigService } from '@nestjs/config';
 
 @Injectable()
-export class DynamodbConfigure implements DynamooseOptionsFactory {
+export class DynamodbConfigService implements DynamooseOptionsFactory {
   constructor(private readonly configService: ConfigService) {}
 
   createDynamooseOptions(): DynamooseModuleOptions {
