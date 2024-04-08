@@ -12,7 +12,7 @@
 
 NestJS 프레임워크를 기반으로 API를 구현하였고, Swagger를 활용하여 각 API의 기능을 문서화하였습니다.
 
-- http://13.125.252.118:3000//apis-doc으로 접속하여 Swagger를 확인할 수 있습니다.
+- http://13.125.252.118:3000/apis-doc 으로 접속하여 Swagger를 확인할 수 있습니다.
 
 데이터베이스는 AWS DynamoDB 기반으로 School, News, Subscription 테이블로 구성하였습니다.
 
