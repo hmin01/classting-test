@@ -1,9 +1,5 @@
 // Exception
-import {
-  BadRequestException,
-  InternalServerErrorException,
-  NotFoundException,
-} from '@nestjs/common';
+import { BadRequestException, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 
 /**
  * [Function] 응답 예외 처리를 위한 함수
