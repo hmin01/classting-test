@@ -1,15 +1,17 @@
 import { Injectable } from '@nestjs/common';
 // DTO
-import { CreateNewsDto, UpdateNewsDto } from './news.dto';
-// Model
-import NewsModel from './news.model';
+import { CreateNewsDto, UpdateNewsDto } from '@/dto/news.dto';
 // Interface
-import { News } from './news.interface';
+import type { News, NewsKey } from '@/interface/news.interface';
+// Repository
+import { NewsRepository } from '@repository/news.repository';
 // Utility
-import { responseException, responseNotFound } from '../../utils/response';
+import { responseException, responseNotFound } from '@util/response';
 
 @Injectable()
 export class NewsService {
+  constructor(private readonly newsRepository: NewsRepository) {}
+
   /**
    * [Method] 학교 소식 생성 메서드
    * @param createNewsDto 생성을 위한 데이터 객체
@@ -24,7 +26,7 @@ export class NewsService {
         createdAt: Date.now(),
       };
       // 데이터 저장
-      return await NewsModel.create(info);
+      return await this.newsRepository.create(info);
     } catch (err) {
       responseException(err);
     }
@@ -38,14 +40,18 @@ export class NewsService {
    */
   async findOne(school: string, createdAt: number): Promise<News> {
     try {
+      // Key
+      const key = this.createKey(school, createdAt);
+
       // ID을 이용한 조회
-      const result = await NewsModel.get({ school, createdAt });
+      const result = await this.newsRepository.findOne(key);
       // 예외 처리
       if (result === undefined || result === null) {
         responseNotFound();
-      } else {
-        return result;
       }
+
+      // 결과 반환
+      return result;
     } catch (err) {
       responseException(err);
     }
@@ -58,24 +64,15 @@ export class NewsService {
    * @param endAt 종료 시간 (Timestamp)
    * @returns 조건에 부합하는 소식 목록
    */
-  async findAllByRange(
-    school: string,
-    startAt: number,
-    endAt?: number,
-  ): Promise<News[]> {
+  async findAllByRange(school: string, startAt: number, endAt?: number): Promise<News[]> {
     try {
+      // 기간 객체
+      const range = { start: startAt, endAt: endAt };
       // 공통 쿼리
-      const query = NewsModel.query('school').eq(school).where('createdAt');
+      const result = await this.newsRepository.findAllByRange(school, range);
 
-      // 구독 취소 경우와 이닌 경우에 따라 조건 쿼리 실행
-      let result: News[];
-      if (endAt > 0) {
-        result = await query.between(startAt, endAt).exec();
-      } else {
-        result = await query.ge(startAt).exec();
-      }
-      // 최신 순으로 정리
-      return await this.arrangeNews(result, 'desc');
+      // 최신 순으로 정렬 및 반환
+      return result.sort((a: News, b: News): number => b.createdAt - a.createdAt);
     } catch (err) {
       responseException(err);
     }
@@ -89,8 +86,11 @@ export class NewsService {
    */
   async remove(school: string, createdAt: number): Promise<string> {
     try {
-      // 삭제
-      await NewsModel.delete({ school, createdAt });
+      // Key
+      const key = this.createKey(school, createdAt);
+      // 삭제 쿼리
+      await this.newsRepository.remove(key);
+
       // 삭제 완료 메시지 반환
       return 'deleted';
     } catch (err) {
@@ -105,48 +105,35 @@ export class NewsService {
    */
   async update(updateNewsDto: UpdateNewsDto): Promise<News> {
     try {
+      // Key
+      const key = this.createKey(updateNewsDto.school_id, updateNewsDto.created_at);
       // 업데이트를 위한 객체 생성
-      const key = {
-        school: updateNewsDto.school_id,
-        createdAt: updateNewsDto.created_at,
-      };
       const updated = {
         content: updateNewsDto.content,
         editedAt: Date.now(),
       };
 
       // 데이터 조회
-      const result = await NewsModel.query('school')
-        .eq(updateNewsDto.school_id)
-        .where('createdAt')
-        .eq(updateNewsDto.created_at)
-        .count()
-        .exec();
-      // 일치하는 값이 없을 경우, 예외 처리
-      if (result.count === 0) {
+      const result = await this.newsRepository.findOne(key);
+      // 예외 처리
+      if (result === undefined || result === null) {
         responseNotFound();
-      } else {
-        // 업데이트
-        return await NewsModel.update(key, updated);
       }
+
+      // 업데이트
+      return await this.newsRepository.update(key, updated);
     } catch (err) {
       responseException(err);
     }
   }
 
   /**
-   * [Method] 데이터 정렬 메서드
-   * @param arr 정렬하고자 하는 소식 데이터 배열
-   * @param sortType 정렬 유형 ['asc' | 'desc']
-   * @returns 정렬된 데이터 배열
+   * [Method] 데이터 키 생성 함수
+   * @param school 학교ID
+   * @param createdAt 생성 시간 (Timestamp)
+   * @returns 키(Key) 객체
    */
-  async arrangeNews(arr: News[], sortType?: 'asc' | 'desc'): Promise<News[]> {
-    return arr.sort((a: News, b: News): number => {
-      if (sortType === 'desc') {
-        return b.createdAt - a.createdAt;
-      } else {
-        return a.createdAt - b.createdAt;
-      }
-    });
+  createKey(school: string, createdAt: number): NewsKey {
+    return { school, createdAt };
   }
 }

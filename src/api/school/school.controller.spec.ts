@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { SchoolController } from './school.controller';
 import { SchoolService } from './school.service';
 import { SubscriptionService } from '../subscription/subscription.service';
-import { createHash } from '../utils/crypto';
+import { createHash } from '@util/crypto';
 
 describe('SchoolController', () => {
   let controller: SchoolController;

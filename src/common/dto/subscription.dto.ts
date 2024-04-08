@@ -2,7 +2,7 @@ import { IsNotEmpty, IsString } from 'class-validator';
 // Swagger
 import { ApiProperty } from '@nestjs/swagger';
 
-export class SubscribeDto {
+export class SubscriptionDto {
   @ApiProperty()
   @IsNotEmpty()
   @IsString()
