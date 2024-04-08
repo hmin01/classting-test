@@ -5,11 +5,15 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 // JWT
+import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class AuthMiddleware implements NestMiddleware {
-  constructor(private readonly jwtService: JwtService) {}
+  constructor(
+    private readonly configService: ConfigService,
+    private readonly jwtService: JwtService,
+  ) {}
 
   use(req: any, res: any, next: (error?: any) => void) {
     // Authorization 추출
@@ -23,7 +27,9 @@ export class AuthMiddleware implements NestMiddleware {
       // JWT Token 추출
       const token = authorization.split(' ')[1];
       // 복호화
-      const decoded = this.jwtService.verify(token, { secret: 'classting' });
+      const decoded = this.jwtService.verify(token, {
+        secret: this.configService.get<string>('JWT_SECRET'),
+      });
       // 예외 처리
       if (decoded.user_id === undefined) {
         throw new UnauthorizedException();

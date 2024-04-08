@@ -72,6 +72,17 @@
       "**/*.(t|j)s"
     ],
     "coverageDirectory": "../coverage",
-    "testEnvironment": "node"
+    "testEnvironment": "node",
+    "moduleNameMapper": {
+      "^@api/(.*)": "<rootDir>/api/$1",
+      "^@config/(.*)": "<rootDir>/config/$1",
+      "^@middleware/(.*)$": "<rootDir>/middleware/$1",
+      "^@repository/(.*)$": "<rootDir>/repository/$1",
+      "^@test/(.*)": "<rootDir>/test/$1",
+      "^@util/(.*)": "<rootDir>/util/$1",
+      "^@/dto/(.*)": "<rootDir>/common/dto/$1",
+      "^@/interface/(.*)": "<rootDir>/common/interface/$1",
+      "^@/schema/(.*)": "<rootDir>/common/schema/$1"
+    }
   }
 }
