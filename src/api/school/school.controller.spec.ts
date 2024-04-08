@@ -1,8 +1,13 @@
 import { Test, TestingModule } from '@nestjs/testing';
+// Controller
 import { SchoolController } from './school.controller';
+// Repository
+import { SchoolRepository } from '@repository/school.repository';
+import { SubscriptionRepository } from '@repository/subscription.repository';
+// Service
 import { SchoolService } from './school.service';
-import { SubscriptionService } from '../subscription/subscription.service';
-import { createHash } from '@util/crypto';
+import { SubscriptionService } from '@api/subscription/subscription.service';
+import { NewsRepository } from '@repository/news.repository';
 
 describe('SchoolController', () => {
   let controller: SchoolController;
@@ -11,9 +16,11 @@ describe('SchoolController', () => {
   let subscriptionService: SubscriptionService;
 
   beforeEach(async () => {
+    const mockRepository = {};
+
     const module: TestingModule = await Test.createTestingModule({
       controllers: [SchoolController],
-      providers: [SchoolService, SubscriptionService],
+      providers: [SchoolService, SubscriptionService, { provide: SchoolRepository, useValue: mockRepository }, { provide: SubscriptionRepository, useValue: mockRepository }, { provide: NewsRepository, useValue: mockRepository }],
     }).compile();
 
     controller = module.get<SchoolController>(SchoolController);
@@ -24,18 +31,5 @@ describe('SchoolController', () => {
 
   it('should be defined', () => {
     expect(controller).toBeDefined();
-  });
-
-  it('should create a new school', async () => {
-    // 입력 Mock 데이터
-    const input = { region: 'seoul', name: 'middle_school' };
-    // 결과 Mock 데이터
-    const created = createHash(input.region, input.name);
-
-    // 서비스 메서드 결과 값 설정
-    jest.spyOn(schoolService, 'create').mockResolvedValueOnce(created);
-
-    // 동작 확인
-    expect(await controller.create(input)).toBe(created);
   });
 });

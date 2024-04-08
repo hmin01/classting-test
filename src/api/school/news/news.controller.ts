@@ -16,6 +16,7 @@ import { ApiBadGatewayResponse, ApiInternalServerErrorResponse, ApiNotFoundRespo
 @Controller('school/news')
 export class NewsController {
   constructor(private newsService: NewsService) {}
+
   @Post('/item')
   @UsePipes(ValidationPipe)
   @ApiOperation({ summary: '소식 생성', description: '학교 페이지 내 소식을 작성합니다.' })

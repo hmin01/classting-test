@@ -22,6 +22,7 @@
       "@config/*": ["src/config/*"],
       "@middleware/*": ["src/middleware/*"],
       "@repository/*": ["src/repository/*"],
+      "@test/*": ["src/test/*"],
       "@util/*": ["src/util/*"],
       "@/dto/*": ["src/common/dto/*"],
       "@/interface/*": ["src/common/interface/*"],

@@ -11,7 +11,6 @@ import { ConfigModule } from '@nestjs/config';
 import { DynamooseModule } from 'nestjs-dynamoose';
 import { SchoolModule } from '@api/school/school.module';
 import { SubscriptionModule } from '@api/subscription/subscription.module';
-import { TestModule } from './test/root-test.module';
 
 @Module({
   imports: [
@@ -24,7 +23,6 @@ import { TestModule } from './test/root-test.module';
     }),
     SchoolModule,
     SubscriptionModule,
-    TestModule,
   ],
   providers: [JwtService],
 })

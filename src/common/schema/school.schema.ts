@@ -1,6 +1,6 @@
 import { Schema } from 'dynamoose';
 
-export const SchoolSchemaName: string = 'classting-school';
+export const SchoolSchemaName = 'classting-school';
 
 const SchoolSchema = new Schema({
   uuid: {

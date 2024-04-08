@@ -1,12 +1,12 @@
 import { Injectable } from '@nestjs/common';
 // Interface
+import type { News } from '@/interface/news.interface';
 import type { Subscription, SubscriptionKey } from '@/interface/subscription.interface';
 // Repository
 import { NewsRepository } from '@repository/news.repository';
 import { SubscriptionRepository } from '@repository/subscription.repository';
 // Utility
 import { responseBadRequest, responseException, responseNotFound } from '@util/response';
-import { News } from '@/interface/news.interface';
 
 @Injectable()
 export class SubscriptionService {
@@ -14,25 +14,6 @@ export class SubscriptionService {
     private readonly subscriptionRepository: SubscriptionRepository,
     private readonly newsRepository: NewsRepository,
   ) {}
-
-  /**
-   * [Method] 구독 중인 학교 목록 조회 메서드
-   * @param user 사용자 ID
-   * @returns 조건에 부합하는 구독 데이터
-   */
-  async getList(user: string): Promise<Subscription[]> {
-    try {
-      // 데이터 조회
-      const result = await this.subscriptionRepository.findSubscribingByUser(user);
-      // 데이터 가공 및 반환
-      return result.map((elem: Subscription): any => ({
-        school: elem.school,
-        subscribedAt: new Date(elem.subscribedAt),
-      }));
-    } catch (err) {
-      responseException(err);
-    }
-  }
 
   /**
    * [Method] 특정 구독 정보 조회 메서드
@@ -65,7 +46,7 @@ export class SubscriptionService {
    */
   async findAll(user: string): Promise<Subscription[]> {
     try {
-      return await this.subscriptionRepository.findAllByUser(user);
+      return await this.subscriptionRepository.findSubscribingByUser(user);
     } catch (err) {
       responseException(err);
     }
@@ -84,7 +65,7 @@ export class SubscriptionService {
       const key = this.createKey(user, school);
 
       // 데이터 조회
-      const subscription = await this.subscriptionRepository.findOne({ user, school });
+      const subscription = await this.subscriptionRepository.findOne(key);
       // 예외 처리
       if (subscription === undefined || subscription === null) {
         responseNotFound();

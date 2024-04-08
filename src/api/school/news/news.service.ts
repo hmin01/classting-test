@@ -42,7 +42,6 @@ export class NewsService {
     try {
       // Key
       const key = this.createKey(school, createdAt);
-
       // ID을 이용한 조회
       const result = await this.newsRepository.findOne(key);
       // 예외 처리
