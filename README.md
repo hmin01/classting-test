@@ -51,6 +51,7 @@ eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwidXNlcl9pZCI6InR
 
 ### 실행 및 테스트
 
+0. node.js를 설치합니다.
 1. 위 설명에 맞춰 환경 변수(.env)를 설정합니다.
 2. `npm instsll` 명령을 통해 의존성을 가진 라이브러리들을 설치합니다.
 3. 아래 명령들을 이용하여 실행 또는 테스트를 진행할 수 있습니다.
